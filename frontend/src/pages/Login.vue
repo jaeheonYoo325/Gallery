@@ -9,6 +9,7 @@
 					class="form-control"
 					id="floatingInput"
 					placeholder="name@example.com"
+					v-model="state.form.email"
 				/>
 				<label for="floatingInput">Email address</label>
 			</div>
@@ -18,6 +19,7 @@
 					class="form-control"
 					id="floatingPassword"
 					placeholder="Password"
+					v-model="state.form.password"
 				/>
 				<label for="floatingPassword">Password</label>
 			</div>
@@ -27,7 +29,7 @@
 					<input type="checkbox" value="remember-me" /> Remember me
 				</label>
 			</div>
-			<button class="w-100 btn btn-lg btn-primary" type="submit">
+			<button class="w-100 btn btn-lg btn-primary" @click="submit()">
 				Sign in
 			</button>
 			<p class="mt-5 mb-3 text-muted">&copy; 2017–2022</p>
@@ -35,7 +37,24 @@
 	</div>
 </template>
 
-<script setup></script>
+<script setup>
+import axios from 'axios';
+import { reactive } from 'vue';
+
+const state = reactive({
+	form: {
+		email: '',
+		password: '',
+	},
+});
+
+const submit = () => {
+	axios.post('/api/account/login', state.form).then(res => {
+		console.log(res);
+		window.alert('로그인하였습니다.');
+	});
+};
+</script>
 
 <style scoped>
 .form-signin {
