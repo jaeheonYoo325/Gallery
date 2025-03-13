@@ -2,6 +2,8 @@ package com.gallery.backend.controller;
 
 import com.gallery.backend.entity.Member;
 import com.gallery.backend.repository.MemberRepository;
+import com.gallery.backend.service.JwtService;
+import com.gallery.backend.service.JwtServiceImpl;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,11 +23,21 @@ public class AccountController {
     MemberRepository memberRepository;
 
     @PostMapping("/api/account/login")
-    public int login(@RequestBody Map<String, String> params) {
+    public ResponseEntity login(@RequestBody Map<String, String> params,
+                                HttpServletResponse res) {
         Member member = memberRepository.findByEmailAndPassword(params.get("email"), params.get("password"));
 
         if (member != null) {
-            return member.getId();
+            JwtService jwtService = new JwtServiceImpl();
+            int id = member.getId();
+            String token = jwtService.getToken("id", id);
+
+            Cookie cookie = new Cookie("token", token);
+            cookie.setHttpOnly(true);
+            cookie.setPath("/");
+
+            res.addCookie(cookie);
+            return new ResponseEntity<>(id, HttpStatus.OK);
         }
 
         throw new ResponseStatusException(HttpStatus.NOT_FOUND);
