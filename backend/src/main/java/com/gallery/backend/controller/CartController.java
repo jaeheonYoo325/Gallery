@@ -33,11 +33,12 @@ public class CartController {
         }
 
         int memberId = jwtService.getId(token);
-        List<Cart> carts = cartRepository.findbyMemberId(memberId);
+        List<Cart> carts = cartRepository.findByMemberId(memberId);
         List<Integer> itemIds = carts.stream().map(Cart::getItemId).toList();
         List<Item> items = itemRepository.findByIdIn(itemIds);
 
         return new ResponseEntity<>(items, HttpStatus.OK);
+
     }
 
     @PostMapping("/api/cart/items/{itemId}")
