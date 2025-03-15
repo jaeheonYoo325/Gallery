@@ -6,6 +6,7 @@ import com.gallery.backend.repository.CartRepository;
 import com.gallery.backend.repository.ItemRepository;
 import com.gallery.backend.repository.OrderRepository;
 import com.gallery.backend.service.JwtService;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,10 @@ import java.util.List;
 public class OrderController {
     @Autowired
     OrderRepository orderRepository;
+
+    @Autowired
+    CartRepository cartRepository;
+
     @Autowired
     JwtService jwtService;
 
@@ -30,10 +35,12 @@ public class OrderController {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         }
 
-        List<Order> orders = orderRepository.findAll();
+        int memberId = jwtService.getId(token);
+        List<Order> orders = orderRepository.findByMemberIdOrderByIdDesc(memberId);
         return new ResponseEntity<>(orders, HttpStatus.OK);
     }
 
+    @Transactional
     @PostMapping("/api/orders")
     public ResponseEntity pushOrder(
             @RequestBody OrderDto dto,
@@ -45,7 +52,9 @@ public class OrderController {
         }
 
         Order newOrder = new Order();
-        newOrder.setMemberId(jwtService.getId(token));
+        int memberId = jwtService.getId(token);
+
+        newOrder.setMemberId(memberId);
         newOrder.setName(dto.getName());
         newOrder.setAddress(dto.getAddress());
         newOrder.setPayment(dto.getPayment());
@@ -53,6 +62,7 @@ public class OrderController {
         newOrder.setItems(dto.getItems());
 
         orderRepository.save(newOrder);
+        cartRepository.deleteByMemberId(memberId);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }

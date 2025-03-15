@@ -53,7 +53,7 @@
 					</svg>
 					<strong>Gallery</strong>
 				</router-link>
-				<router-link to="/cart" class="cart btn">
+				<router-link to="/cart" class="cart btn" v-if="$store.state.account.id">
 					<i class="bi bi-cart" aria-hidden="true"></i>
 				</router-link>
 				<button
@@ -75,15 +75,22 @@
 <script setup>
 import router from '@/scripts/router';
 import store from '@/scripts/store';
+import axios from 'axios';
 
 const logout = () => {
-	store.commit('setAccount', 0);
-	sessionStorage.removeItem('id');
-	router.push({ path: '/' });
+	axios.post('/api/account/logout').then(() => {
+		store.commit('setAccount', 0);
+		sessionStorage.removeItem('id');
+		router.push({ path: '/' });
+	});
 };
 </script>
 
 <style scoped>
+header ul li a {
+	cursor: pointer;
+}
+
 header .navbar .cart {
 	margin-left: auto;
 	color: #fff;
