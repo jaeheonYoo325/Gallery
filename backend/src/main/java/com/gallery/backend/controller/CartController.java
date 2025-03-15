@@ -28,7 +28,7 @@ public class CartController {
     @GetMapping("/api/cart/items")
     public ResponseEntity getCartItems(@CookieValue(value = "token", required = false) String token) {
 
-        if (jwtService.isValid(token)) {
+        if (!jwtService.isValid(token)) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         }
 
@@ -47,7 +47,7 @@ public class CartController {
             @CookieValue(value = "token", required = false) String token
     ) {
 
-        if (jwtService.isValid(token)) {
+        if (!jwtService.isValid(token)) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         }
 
