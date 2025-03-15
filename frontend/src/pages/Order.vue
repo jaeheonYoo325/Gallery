@@ -46,11 +46,21 @@
 							<div class="row g-3">
 								<div class="col-12">
 									<label for="username" class="form-label">이름</label>
-									<input type="text" class="form-control" id="username" />
+									<input
+										type="text"
+										class="form-control"
+										id="username"
+										v-model="state.form.name"
+									/>
 								</div>
 								<div class="col-12">
 									<label for="address" class="form-label">주소</label>
-									<input type="text" class="form-control" id="address" />
+									<input
+										type="text"
+										class="form-control"
+										id="address"
+										v-model="state.form.address"
+									/>
 								</div>
 							</div>
 							<hr class="my-4" />
@@ -63,6 +73,7 @@
 										type="radio"
 										class="form-check-input"
 										value="card"
+										v-model="state.form.payment"
 									/>
 									<label class="form-check-label" for="card">신용카드 </label>
 								</div>
@@ -73,14 +84,22 @@
 										type="radio"
 										class="form-check-input"
 										value="bank"
+										v-model="state.form.payment"
 									/>
 									<label class="form-check-label" for="bank">무통장입금</label>
 								</div>
 							</div>
 							<label for="cc-name" class="form-label">카드 번호</label>
-							<input type="text" class="form-control" id="cc-name" />
+							<input
+								type="text"
+								class="form-control"
+								id="cc-name"
+								v-model="state.form.cardNumber"
+							/>
 							<hr class="my-4" />
-							<button class="w-100 btn btn-primary btn-lg">결제하기</button>
+							<button class="w-100 btn btn-primary btn-lg" @click="submit()">
+								결제하기
+							</button>
 						</div>
 					</div>
 				</div>
@@ -96,12 +115,28 @@ import { computed, reactive } from 'vue';
 
 const state = reactive({
 	items: [],
+	form: {
+		name: '',
+		address: '',
+		payment: '',
+		cardNumber: '',
+		items: '',
+	},
 });
 
 const load = () => {
 	axios.get('/api/cart/items').then(({ data }) => {
 		console.log(data);
 		state.items = data;
+	});
+};
+
+const submit = () => {
+	const args = JSON.parse(JSON.stringify(state.form));
+	args.items = JSON.stringify(state.items);
+
+	axios.post('/api/orders', args).then(() => {
+		console.log('success');
 	});
 };
 
